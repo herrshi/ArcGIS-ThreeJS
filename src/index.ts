@@ -18,6 +18,9 @@ document.body.appendChild(renderer.domElement);
 let geometry = new THREE.BoxGeometry(1, 1, 1);
 let material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 let cube = new THREE.Mesh(geometry, material);
+cube.position.x = 0;
+cube.position.y = 0;
+cube.position.z = 0;
 //加入到场景
 scene.add(cube);
 
