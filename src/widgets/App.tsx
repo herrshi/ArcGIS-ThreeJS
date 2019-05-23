@@ -8,14 +8,17 @@ import {
 } from "esri/core/accessorSupport/decorators";
 import { tsx } from "esri/widgets/support/widget";
 
-import GeoJSONLayer from "esri/layers/GeoJSONLayer";
 import EsriMap from "esri/Map";
-import MapView from "esri/views/MapView";
+// import MapView from "esri/views/MapView";
+import SceneView from "esri/views/SceneView";
+import externalRenderers from "esri/views/3d/externalRenderers";
 import Widget from "esri/widgets/Widget";
 
 import AppViewModel, { AppParams } from "./App/AppViewModel";
 
 import { Header } from "./Header";
+
+import * as THREE from "three";
 
 interface AppViewParams extends AppParams, esri.WidgetProperties {}
 
@@ -30,11 +33,9 @@ export default class App extends declared(Widget) {
 
   @aliasOf("viewModel.appName") appName: string;
 
-  @aliasOf("viewModel.layer") layer: GeoJSONLayer;
-
   @aliasOf("viewModel.map") map: EsriMap;
 
-  @aliasOf("viewModel.view") view: __esri.MapView;
+  @aliasOf("viewModel.view") view: SceneView;
 
   constructor(params: Partial<AppViewParams>) {
     super(params);
@@ -50,12 +51,40 @@ export default class App extends declared(Widget) {
   }
 
   private onAfterCreate(element: HTMLDivElement) {
-    import("./../data/app").then(({ layer, map }) => {
-      this.layer = layer;
+    import("./../data/app").then(({ map }) => {
       this.map = map;
-      this.view = new MapView({
+      this.view = new SceneView({
         map: this.map,
-        container: element
+        container: element,
+        viewingMode: "global",
+        camera: {
+          position: {
+            x: -9932671,
+            y: 2380007,
+            z: 1687219,
+            spatialReference: { wkid: 102100 }
+          },
+          heading: 0,
+          tilt: 35
+        }
+      });
+      this.view.when(() => {
+        this.view.environment.lighting!.cameraTrackingEnabled = false;
+
+        const issExternalRenderer = {
+          renderer: null, // three.js renderer
+          camera: null, // three.js camera
+          scene: null, // three.js scene
+
+          ambient: null, // three.js ambient light source
+          sun: null, // three.js sun light source
+
+          iss: null, // ISS model
+          issScale: 40000, // scale for the iss model
+          issMaterial: new THREE.MeshLambertMaterial({ color: 0xe03110 }) // material for the ISS model
+        };
+
+        externalRenderers.add(this.view, issExternalRenderer);
       });
     });
   }

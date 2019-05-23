@@ -11,6 +11,6 @@ interface HeaderProperties {
 
 export const Header = (props: HeaderProperties) => (
   <header class={CSS.base}>
-    <span class={CSS.title}>ArcGIS {props.appName}</span>
+    <span class={CSS.title}>{props.appName}</span>
   </header>
 );
