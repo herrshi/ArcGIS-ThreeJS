@@ -1,30 +1,23 @@
 import Accessor from "esri/core/Accessor";
 import { whenOnce } from "esri/core/watchUtils";
-import GeoJSONLayer from "esri/layers/GeoJSONLayer";
 import EsriMap from "esri/Map";
-import MapView from "esri/views/MapView";
-import Expand from "esri/widgets/Expand";
-import Search from "esri/widgets/Search";
+import SceneView from "esri/views/SceneView";
+import externalRenderers from "esri/views/3d/externalRenderers";
+import CarExternalRenderer from "./carExternalRenderer";
 
-import {
-  declared,
-  property,
-  subclass
-} from "esri/core/accessorSupport/decorators";
+import { declared, property, subclass } from "esri/core/accessorSupport/decorators";
 
 export interface AppParams {
   appName: string;
   map: EsriMap;
-  layer: GeoJSONLayer;
-  view: MapView;
+  view: SceneView;
 }
 
 @subclass("widgets.App.AppViewModel")
 class AppViewModel extends declared(Accessor) {
   @property() appName: string;
   @property() map: EsriMap;
-  @property() layer: GeoJSONLayer;
-  @property() view: MapView;
+  @property() view: SceneView;
 
   constructor(params?: Partial<AppParams>) {
     super(params);
@@ -32,13 +25,9 @@ class AppViewModel extends declared(Accessor) {
   }
 
   onload() {
-    const search = new Search({ view: this.view });
-    const expand = new Expand({ content: search });
-    this.view.ui.add(expand, "top-right");
+    const carRenderer = new CarExternalRenderer(this.view);
+    externalRenderers.add(this.view, carRenderer.externalRenderer);
 
-    this.layer.when(() => {
-      this.view.goTo({ target: this.layer.fullExtent });
-    });
   }
 }
 

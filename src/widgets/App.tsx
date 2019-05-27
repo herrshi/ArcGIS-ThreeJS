@@ -1,24 +1,14 @@
 import esri = __esri;
-
-import {
-  aliasOf,
-  declared,
-  property,
-  subclass
-} from "esri/core/accessorSupport/decorators";
+import { aliasOf, declared, property, subclass } from "esri/core/accessorSupport/decorators";
 import { tsx } from "esri/widgets/support/widget";
 
 import EsriMap from "esri/Map";
-// import MapView from "esri/views/MapView";
 import SceneView from "esri/views/SceneView";
-import externalRenderers from "esri/views/3d/externalRenderers";
 import Widget from "esri/widgets/Widget";
 
 import AppViewModel, { AppParams } from "./App/AppViewModel";
 
 import { Header } from "./Header";
-
-import * as THREE from "three";
 
 interface AppViewParams extends AppParams, esri.WidgetProperties {}
 
@@ -56,35 +46,16 @@ export default class App extends declared(Widget) {
       this.view = new SceneView({
         map: this.map,
         container: element,
-        viewingMode: "global",
+        viewingMode: "local",
         camera: {
-          position: {
-            x: -9932671,
-            y: 2380007,
-            z: 1687219,
-            spatialReference: { wkid: 102100 }
-          },
           heading: 0,
-          tilt: 35
+          tilt: 70,
+          position: {
+            latitude: 39.569704,
+            longitude: 116.433877,
+            z: 13000
+          }
         }
-      });
-      this.view.when(() => {
-        this.view.environment.lighting!.cameraTrackingEnabled = false;
-
-        const issExternalRenderer = {
-          renderer: null, // three.js renderer
-          camera: null, // three.js camera
-          scene: null, // three.js scene
-
-          ambient: null, // three.js ambient light source
-          sun: null, // three.js sun light source
-
-          iss: null, // ISS model
-          issScale: 40000, // scale for the iss model
-          issMaterial: new THREE.MeshLambertMaterial({ color: 0xe03110 }) // material for the ISS model
-        };
-
-        externalRenderers.add(this.view, issExternalRenderer);
       });
     });
   }
