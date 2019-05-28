@@ -2,10 +2,15 @@ import Accessor from "esri/core/Accessor";
 import { whenOnce } from "esri/core/watchUtils";
 import EsriMap from "esri/Map";
 import SceneView from "esri/views/SceneView";
-import externalRenderers from "esri/views/3d/externalRenderers";
+//externalRenderers使用import ... from ... 不起效
+import externalRenderers = require("esri/views/3d/externalRenderers");
 import CarExternalRenderer from "./carExternalRenderer";
 
-import { declared, property, subclass } from "esri/core/accessorSupport/decorators";
+import {
+  declared,
+  property,
+  subclass
+} from "esri/core/accessorSupport/decorators";
 
 export interface AppParams {
   appName: string;
@@ -25,9 +30,8 @@ class AppViewModel extends declared(Accessor) {
   }
 
   onload() {
-    const carRenderer = new CarExternalRenderer(this.view);
-    externalRenderers.add(this.view, carRenderer.externalRenderer);
-
+    let carRenderer: CarExternalRenderer = new CarExternalRenderer(this.view);
+    externalRenderers.add(this.view, carRenderer);
   }
 }
 
