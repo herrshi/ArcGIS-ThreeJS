@@ -1,6 +1,8 @@
 import esri = __esri;
 import * as THREE from "three";
 import SceneView from "esri/views/SceneView";
+import {MTLLoader} from "three/examples/jsm/loaders/MTLLoader";
+import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 
 
 export default class CarExternalRenderer {
@@ -12,7 +14,7 @@ export default class CarExternalRenderer {
   sun: THREE.DirectionalLight;
   ambient: THREE.AmbientLight;
 
-  car: THREE.Object3D;
+  car: THREE.Group;
 
   constructor(view: SceneView) {
     this.view = view;
@@ -22,6 +24,7 @@ export default class CarExternalRenderer {
   }
 
   setup(context: esri.RenderContext) {
+    //WebGLRenderer
     this.renderer = new THREE.WebGLRenderer({
       context: context.gl,
       premultipliedAlpha: false
@@ -47,26 +50,44 @@ export default class CarExternalRenderer {
     this.camera = new THREE.PerspectiveCamera();
     this.scene.add(this.camera);
 
-    // setup scene lighting
+    //光照
     this.ambient = new THREE.AmbientLight(0xffffff, 0.5);
     this.scene.add(this.ambient);
     this.sun = new THREE.DirectionalLight(0xffffff, 0.5);
     this.scene.add(this.sun);
 
-
-
-    const carMeshUrl: string = "./src/assets/Porsche_911_GT2.obj";
-    const loader: THREE.ObjectLoader = new THREE.ObjectLoader(THREE.DefaultLoadingManager);
-    loader.load(carMeshUrl, object => {
-      this.car = object;
-      console.log(this.car);
-    }, undefined, error => {
-      console.error("Error loading Car mesh. ", error);
+    //载入车辆模型
+    const mtlLoader: MTLLoader = new MTLLoader();
+    mtlLoader.setPath("./src/assets/car/");
+    console.time("车辆材质载入完成");
+    mtlLoader.load("car4.mtl", materialCreator => {
+      console.timeEnd("车辆材质载入完成");
+      materialCreator.preload();
+      const objLoader: OBJLoader = new OBJLoader();
+      objLoader.setMaterials(materialCreator as any);
+      objLoader.setPath("./src/assets/car/");
+      console.time("车辆模型载入完成");
+      objLoader.load("car4.obj", group => {
+        this.car = group;
+        this.scene.add(this.car);
+        console.timeEnd("车辆模型载入完成");
+      }, () => {
+        console.log("载入车辆模型中...");
+      }, error => {
+        console.error("载入车辆模型失败: ", error);
+      });
+    }, () => {
+      console.log("载入车辆材质中...");
+    }, error => {
+      console.error("载入车辆材质失败: ", error);
     });
 
   }
 
   render(context: esri.RenderContext) {
-    // console.log("render");
+    const camera = context.camera;
+
+    this.camera.position.set(camera.eye[0], camera.eye[1], camera.eye[2]);
+
   }
 }
