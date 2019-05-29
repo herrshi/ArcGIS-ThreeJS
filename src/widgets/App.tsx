@@ -79,9 +79,17 @@ export default class App extends declared(Widget) {
           ambient: null, // three.js ambient light source
           sun: null, // three.js sun light source
 
-          iss: null, // ISS model
+          iss: null, // 空间站模型
           issScale: 40000, // scale for the iss model
-          issMaterial: new THREE.MeshLambertMaterial({ color: 0xe03110 }) // material for the ISS model
+          issMaterial: new THREE.MeshLambertMaterial({ color: 0xe03110 }), // 空间站模型material
+
+          cameraPositionInitialized: false, // camera位置是否已初始化
+          positionHistory: [], // 空间站轨迹
+
+          markerMaterial: null, // 空间站轨迹点material
+          markerGeometry: null, // 空间站轨迹geometry
+
+
         };
 
         externalRenderers.add(this.view, issExternalRenderer);
