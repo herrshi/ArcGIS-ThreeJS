@@ -1,0 +1,252 @@
+import esri = __esri;
+import * as THREE from "three";
+import SceneView from "esri/views/SceneView";
+import CarLoader from "../../data/CarLoader";
+import CoordTransform from "../../lib/coordtransform";
+
+//轨迹点信息
+interface TrackPointAttr {
+  //轨迹点坐标
+  pos: Array<number>;
+  //时间
+  time: number;
+  //到下一个点所需的速度
+  vel?: Array<number>;
+}
+
+//实时点信息
+interface RTPointAttr {
+  //实时位置
+  pos: Array<number>;
+  //车头角度
+  angel: number;
+}
+
+export default class CarExternalRenderer {
+  view: SceneView;
+
+  renderer: THREE.WebGLRenderer;
+  scene: THREE.Scene;
+  camera: THREE.PerspectiveCamera;
+  sun: THREE.DirectionalLight;
+  ambient: THREE.AmbientLight;
+
+  car: THREE.Object3D;
+  carHeight: number = 50;
+
+  //轨迹时间和当前时间的差值
+  timeOffset: number;
+  //轨迹点列表
+  positionHistory: Array<TrackPointAttr> = [];
+  //以经过的点列表
+  estHistory: Array<TrackPointAttr> = [];
+
+  currentPointIndex: number = 0;
+
+  constructor(view: SceneView) {
+    this.view = view;
+    if (this.view.environment.lighting) {
+      this.view.environment.lighting.cameraTrackingEnabled = false;
+    }
+  }
+
+  setup(context: esri.RenderContext) {
+    //WebGLRenderer
+    this.renderer = new THREE.WebGLRenderer({
+      context: context.gl,
+      premultipliedAlpha: false
+    });
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setViewport(0, 0, this.view.width, this.view.height);
+    this.renderer.autoClearDepth = false;
+    this.renderer.autoClearStencil = false;
+    this.renderer.autoClearColor = false;
+
+    const originalSetRenderTarget = this.renderer.setRenderTarget.bind(
+      this.renderer
+    );
+    this.renderer.setRenderTarget = renderTarget => {
+      originalSetRenderTarget(renderTarget);
+      if (renderTarget === null) {
+        context.bindRenderTarget();
+      }
+    };
+
+    this.scene = new THREE.Scene();
+
+    this.camera = new THREE.PerspectiveCamera();
+    this.scene.add(this.camera);
+
+    //光照
+    this.ambient = new THREE.AmbientLight(0xffffff, 0.5);
+    this.scene.add(this.ambient);
+    this.sun = new THREE.DirectionalLight(0xffffff, 0.5);
+    this.scene.add(this.sun);
+
+    //载入车辆模型
+    console.time("车辆载入完成");
+    CarLoader.loadMTL("../src/assets/car/", "car4")
+      .then(car => {
+        this.car = car as THREE.Object3D;
+        this.scene.add(this.car);
+        console.timeEnd("车辆载入完成");
+      })
+      .catch(error => {
+        console.error("车辆载入失败", error);
+      });
+
+    console.time("轨迹数据载入完成");
+    this.loadTrack().then(() => {
+      console.timeEnd("轨迹数据载入完成");
+      this.queryCarPosition();
+    });
+
+    context.resetWebGLState();
+  }
+
+  render(context: esri.RenderContext) {
+    const camera = context.camera;
+
+    this.camera.position.set(camera.eye[0], camera.eye[1], camera.eye[2]);
+    this.camera.up.set(camera.up[0], camera.up[1], camera.up[2]);
+    this.camera.lookAt(
+      new THREE.Vector3(camera.center[0], camera.center[1], camera.center[2])
+    );
+
+    if (this.car) {
+
+    }
+  }
+
+  loadTrack() {
+    return new Promise((resolve, reject) => {
+      fetch("../src/assets/data/10.txt")
+        .then(response => {
+          return response.text();
+        })
+        .then(data => {
+          const dataList: Array<string> = data.split(/[\n\r]+/);
+          dataList.forEach((positionInfo, index) => {
+            const posInfoData: Array<string> = positionInfo.split(",");
+            const time = new Date(posInfoData[1]).getTime();
+            if (index === 0) {
+              this.timeOffset = Math.round((Date.now() - time) / 1000);
+            }
+            const pos: Array<number> = CoordTransform.wgs84togcj02(
+              Number(posInfoData[2]),
+              Number(posInfoData[3])
+            );
+            this.positionHistory.push({
+              pos,
+              time: time / 1000
+            });
+          });
+          //增加起始点
+          this.estHistory.push({
+            pos: [...this.positionHistory[0].pos, this.carHeight],
+            time: this.positionHistory[0].time,
+            vel: [0, 0]
+          });
+          this.currentPointIndex = 1;
+          resolve();
+        })
+        .catch(error => {
+          reject(error);
+        });
+    });
+  }
+
+  queryCarPosition() {
+    let vel: Array<number> = [0, 0];
+    const current: TrackPointAttr = this.positionHistory[
+      this.currentPointIndex
+    ];
+    const next: TrackPointAttr = this.positionHistory[
+      this.currentPointIndex + 1
+    ];
+    //下次调用的时间
+    const nextTime: number = next.time - current.time;
+
+    if (this.estHistory.length > 0) {
+      const last: TrackPointAttr = this.positionHistory[
+        this.currentPointIndex - 1
+      ];
+      const deltaT: number = current.time - last.time;
+      const vLon: number = (current.pos[0] - last.pos[0]) / deltaT;
+      const vLat: number = (current.pos[1] - last.pos[1]) / deltaT;
+      vel = [vLon, vLat];
+    }
+
+    this.estHistory.push({
+      pos: [...current.pos, this.carHeight],
+      time: current.time,
+      vel
+    });
+    this.currentPointIndex++;
+
+    setTimeout(() => {
+      this.queryCarPosition();
+    }, nextTime * 1000);
+  }
+
+  lastPosition: Array<number>;
+  lastTime: number;
+
+  computeCarPosition(): RTPointAttr {
+    if (this.estHistory.length >= 2) {
+      const now: number = Date.now() / 1000 - this.timeOffset;
+      const entry1: TrackPointAttr = this.estHistory[
+        this.estHistory.length - 1
+      ];
+
+      if (!this.lastPosition) {
+        this.lastPosition = entry1.pos;
+        this.lastTime = entry1.time;
+      }
+
+      // compute a new estimated position
+      if (entry1.vel) {
+        const dt1 = now - entry1.time;
+        const est1 = [
+          entry1.pos[0] + dt1 * entry1.vel[0],
+          entry1.pos[1] + dt1 * entry1.vel[1]
+        ];
+
+        const dPos = [
+          est1[0] - this.lastPosition[0],
+          est1[1] - this.lastPosition[1]
+        ];
+
+        // compute required velocity to reach newly estimated position
+        // but cap the actual velocity to 1.2 times the currently estimated ISS velocity
+        let dt = now - this.lastTime;
+        if (dt === 0) {
+          dt = 1.0 / 1000;
+        }
+
+        const catchupVel =
+          Math.sqrt(dPos[0] * dPos[0] + dPos[1] * dPos[1]) / dt;
+        const maxVel =
+          1.2 *
+          Math.sqrt(
+            entry1.vel[0] * entry1.vel[0] + entry1.vel[1] * entry1.vel[1]
+          );
+        const factor = catchupVel <= maxVel ? 1.0 : maxVel / catchupVel;
+
+        // move the current position towards the estimated position
+        const newPos = [
+          this.lastPosition[0] + dPos[0] * factor,
+          this.lastPosition[1] + dPos[1] * factor,
+          entry1.pos[2]
+        ];
+
+        this.lastPosition = newPos;
+        this.lastTime = now;
+
+        return { pos: newPos, angel: Math.atan2(entry1.vel[0], entry1.vel[1]) };
+      }
+    }
+
+    return { pos: [0, 0, 0], angel: 0 };
+  }
+}
