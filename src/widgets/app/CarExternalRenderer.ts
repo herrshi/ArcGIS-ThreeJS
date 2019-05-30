@@ -1,6 +1,8 @@
+import externalRenderers = require("esri/views/3d/externalRenderers");
 import esri = __esri;
 import * as THREE from "three";
 import SceneView from "esri/views/SceneView";
+import SpatialReference from "esri/geometry/SpatialReference";
 import CarLoader from "../../data/CarLoader";
 import CoordTransform from "../../lib/coordtransform";
 
@@ -32,7 +34,10 @@ export default class CarExternalRenderer {
   ambient: THREE.AmbientLight;
 
   car: THREE.Object3D;
-  carHeight: number = 50;
+  //车辆模型距离地面高度
+  carHeight: number = 10;
+
+  markerLine: THREE.Mesh;
 
   //轨迹时间和当前时间的差值
   timeOffset: number;
@@ -41,12 +46,19 @@ export default class CarExternalRenderer {
   //以经过的点列表
   estHistory: Array<TrackPointAttr> = [];
 
+  //是否追踪视角
+  cameraTracking: boolean = true;
+  cameraInitialized: boolean = false;
+
+  //用于处理点击判断
+  rayCaster: THREE.Raycaster;
+
   currentPointIndex: number = 0;
 
   constructor(view: SceneView) {
     this.view = view;
     if (this.view.environment.lighting) {
-      this.view.environment.lighting.cameraTrackingEnabled = false;
+      // this.view.environment.lighting.cameraTrackingEnabled = false;
     }
   }
 
@@ -85,11 +97,28 @@ export default class CarExternalRenderer {
 
     //载入车辆模型
     console.time("车辆载入完成");
-    CarLoader.loadMTL("../src/assets/car/", "car4")
+    CarLoader.loadMTL("./static/car/", "car3")
       .then(car => {
         this.car = car as THREE.Object3D;
+        this.car.name = "Car";
+        //车辆水平放置
+        this.car.rotateX(Math.PI / 2);
+        this.car.scale.set(50, 50, 50);
         this.scene.add(this.car);
         console.timeEnd("车辆载入完成");
+
+        //放置标线
+        const commonMat: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({
+          color: 0x2194ce
+        });
+        commonMat.transparent = true;
+        commonMat.opacity = 0.5;
+        this.markerLine = new THREE.Mesh(
+          new THREE.CylinderBufferGeometry(25, 25, 5000, 32),
+          commonMat
+        );
+        this.markerLine.rotateX(Math.PI / 2);
+        this.scene.add(this.markerLine);
       })
       .catch(error => {
         console.error("车辆载入失败", error);
@@ -99,6 +128,24 @@ export default class CarExternalRenderer {
     this.loadTrack().then(() => {
       console.timeEnd("轨迹数据载入完成");
       this.queryCarPosition();
+    });
+
+    this.rayCaster = new THREE.Raycaster();
+    this.view.container.addEventListener("click", event => {
+      const mouse = new THREE.Vector2();
+      mouse.x = event.clientX / window.innerWidth * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      this.rayCaster.setFromCamera(mouse, this.camera);
+      const intersects: Array<THREE.Intersection> = this.rayCaster.intersectObjects(
+        this.scene.children,
+        true
+      );
+      if (intersects.length >= 1) {
+        // const clickObject: THREE.Object3D = intersects[0].object;
+        this.cameraTracking = !this.cameraTracking;
+        this.view.camera.tilt = this.cameraTracking ? 70 : 0;
+      }
     });
 
     context.resetWebGLState();
@@ -114,13 +161,70 @@ export default class CarExternalRenderer {
     );
 
     if (this.car) {
+      let { pos: posEst, angel: angelEst } = this.computeCarPosition();
 
+      let renderPos = [0, 0, 0];
+      externalRenderers.toRenderCoordinates(
+        this.view,
+        posEst,
+        0,
+        SpatialReference.WGS84,
+        renderPos,
+        0,
+        1
+      );
+      this.car.position.set(renderPos[0], renderPos[1], renderPos[2]);
+      //调整车头方向
+      this.car.rotation.y = -angelEst;
+
+      this.markerLine.position.set(renderPos[0], renderPos[1], 500);
+
+      //追踪
+      if (this.cameraTracking && !this.view.interacting) {
+        if (this.cameraInitialized) {
+          this.view.goTo({
+            target: [posEst[0], posEst[1]]
+          });
+        } else {
+          this.view
+            .goTo({
+              target: [posEst[0], posEst[1]],
+              zoom: 14
+            })
+            .then(() => {
+              this.cameraInitialized = true;
+            });
+        }
+      }
     }
+
+    this.camera.projectionMatrix.fromArray(camera.projectionMatrix as any);
+
+    const l = context.sunLight;
+    this.sun.position.set(l.direction[0], l.direction[1], l.direction[2]);
+    this.sun.intensity = l.diffuse.intensity;
+    this.sun.color = new THREE.Color(
+      l.diffuse.color[0],
+      l.diffuse.color[1],
+      l.diffuse.color[2]
+    );
+
+    this.ambient.intensity = l.ambient.intensity;
+    this.ambient.color = new THREE.Color(
+      l.ambient.color[0],
+      l.ambient.color[1],
+      l.ambient.color[2]
+    );
+
+    this.renderer.state.reset();
+    this.renderer.render(this.scene, this.camera);
+    externalRenderers.requestRender(this.view);
+    context.resetWebGLState();
   }
 
   loadTrack() {
     return new Promise((resolve, reject) => {
-      fetch("../src/assets/data/10.txt")
+      fetch("./static/data/10.txt")
         .then(response => {
           return response.text();
         })

@@ -8,7 +8,7 @@ import Widget from "esri/widgets/Widget";
 
 import AppViewModel, { AppParams } from "./App/AppViewModel";
 
-import { Header } from "./Header";
+// import { Header } from "./Header";
 
 interface AppViewParams extends AppParams, esri.WidgetProperties {}
 
@@ -34,7 +34,7 @@ export default class App extends declared(Widget) {
   render() {
     return (
       <div class={CSS.base}>
-        {Header({ appName: this.appName })}
+        {/*{Header({ appName: this.appName })}*/}
         <div class={CSS.webmap} bind={this} afterCreate={this.onAfterCreate} />
       </div>
     );

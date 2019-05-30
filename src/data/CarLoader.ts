@@ -12,6 +12,7 @@ export default class CarLoader {
           materialCreator.preload();
 
           const objLoader: OBJLoader = new OBJLoader();
+          objLoader.setMaterials(materialCreator as any);
           objLoader.setPath(path);
           objLoader.load(
             objName + ".obj",
