@@ -2,7 +2,7 @@ import Accessor from "esri/core/Accessor";
 import { whenOnce } from "esri/core/watchUtils";
 import EsriMap from "esri/Map";
 import SceneView from "esri/views/SceneView";
-import CarExternalRenderer from "./carExternalRenderer";
+import CarExternalRenderer from "./CarExternalRenderer";
 
 import {
   declared,
@@ -26,11 +26,13 @@ class AppViewModel extends declared(Accessor) {
 
   constructor(params?: Partial<AppParams>) {
     super(params);
-    whenOnce(this, "view").then(this.onload.bind(this));
+    whenOnce(this, "view").then(() => {
+      this.onload();
+    });
   }
 
   onload() {
-    let carRenderer: CarExternalRenderer = new CarExternalRenderer(this.view);
+    const carRenderer: CarExternalRenderer = new CarExternalRenderer(this.view);
     externalRenderers.add(this.view, carRenderer);
   }
 }
