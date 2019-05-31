@@ -98,7 +98,7 @@ export default class CarExternalRenderer {
 
     //载入车辆模型
     console.time("车辆载入完成");
-    ModelLoader.loadMTL("./static/car/", "car3")
+    ModelLoader.loadMTLModel("./static/car/", "car3")
       .then(car => {
         this.car = car as THREE.Object3D;
         this.car.name = "Car";
