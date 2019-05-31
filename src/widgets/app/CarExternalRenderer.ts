@@ -3,7 +3,7 @@ import esri = __esri;
 import * as THREE from "three";
 import SceneView from "esri/views/SceneView";
 import SpatialReference from "esri/geometry/SpatialReference";
-import CarLoader from "../../data/CarLoader";
+import ModelLoader from "../../lib/ModelLoader";
 import CoordTransform from "../../lib/coordtransform";
 
 //轨迹点信息
@@ -49,6 +49,7 @@ export default class CarExternalRenderer {
   //是否追踪视角
   cameraTracking: boolean = true;
   cameraInitialized: boolean = false;
+  viewZooming: boolean = false;
 
   //用于处理点击判断
   rayCaster: THREE.Raycaster;
@@ -57,9 +58,9 @@ export default class CarExternalRenderer {
 
   constructor(view: SceneView) {
     this.view = view;
-    if (this.view.environment.lighting) {
-      // this.view.environment.lighting.cameraTrackingEnabled = false;
-    }
+    // if (this.view.environment.lighting) {
+    //   this.view.environment.lighting.cameraTrackingEnabled = false;
+    // }
   }
 
   setup(context: esri.RenderContext) {
@@ -97,7 +98,7 @@ export default class CarExternalRenderer {
 
     //载入车辆模型
     console.time("车辆载入完成");
-    CarLoader.loadMTL("./static/car/", "car3")
+    ModelLoader.loadMTL("./static/car/", "car3")
       .then(car => {
         this.car = car as THREE.Object3D;
         this.car.name = "Car";
@@ -130,6 +131,7 @@ export default class CarExternalRenderer {
       this.queryCarPosition();
     });
 
+    //点击事件
     this.rayCaster = new THREE.Raycaster();
     this.view.container.addEventListener("click", event => {
       const mouse = new THREE.Vector2();
@@ -137,14 +139,21 @@ export default class CarExternalRenderer {
       mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
       this.rayCaster.setFromCamera(mouse, this.camera);
-      const intersects: Array<THREE.Intersection> = this.rayCaster.intersectObjects(
-        this.scene.children,
-        true
-      );
+      const intersects: Array<
+        THREE.Intersection
+      > = this.rayCaster.intersectObjects(this.scene.children, true);
       if (intersects.length >= 1) {
         // const clickObject: THREE.Object3D = intersects[0].object;
         this.cameraTracking = !this.cameraTracking;
-        this.view.camera.tilt = this.cameraTracking ? 70 : 0;
+        this.viewZooming = true;
+        this.view
+          .goTo({
+            tilt: this.cameraTracking ? 70 : 0,
+            zoom: this.cameraTracking ? 14 : 13
+          })
+          .then(() => {
+            this.viewZooming = false;
+          });
       }
     });
 
@@ -179,8 +188,8 @@ export default class CarExternalRenderer {
 
       this.markerLine.position.set(renderPos[0], renderPos[1], 3000);
 
-      //追踪
-      if (this.cameraTracking && !this.view.interacting) {
+      //镜头追踪
+      if (this.cameraTracking && !this.view.interacting && !this.viewZooming) {
         if (this.cameraInitialized) {
           this.view.goTo({
             target: [posEst[0], posEst[1]]
