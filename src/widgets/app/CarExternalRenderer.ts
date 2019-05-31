@@ -36,8 +36,11 @@ export default class CarExternalRenderer {
   car: THREE.Object3D;
   //车辆模型距离地面高度
   carHeight: number = 10;
+  //车辆缩放比例
+  carScale: number = 20;
 
   markerLine: THREE.Mesh;
+  markerPointer: THREE.Mesh;
 
   //轨迹时间和当前时间的差值
   timeOffset: number;
@@ -104,22 +107,35 @@ export default class CarExternalRenderer {
         this.car.name = "Car";
         //车辆水平放置
         this.car.rotateX(Math.PI / 2);
-        this.car.scale.set(50, 50, 50);
+        this.car.scale.set(this.carScale, this.carScale, this.carScale);
         this.scene.add(this.car);
         console.timeEnd("车辆载入完成");
 
-        //放置标线
-        const commonMat: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({
-          color: 0x2194ce
+        //标线
+        const commonMat: THREE.MeshLambertMaterial = new THREE.MeshLambertMaterial({
+          color: 0x2194ce,
+          // wireframe: true
         });
-        commonMat.transparent = true;
+        // commonMat.transparent = true;
         commonMat.opacity = 0.5;
+
         this.markerLine = new THREE.Mesh(
-          new THREE.CylinderBufferGeometry(25, 25, 5000, 32),
+          new THREE.CylinderBufferGeometry(10, 10, 2000, 32),
           commonMat
         );
         this.markerLine.rotateX(Math.PI / 2);
+        this.markerLine.name = "markerLine";
         this.scene.add(this.markerLine);
+
+        this.markerPointer = new THREE.Mesh(
+          new THREE.OctahedronBufferGeometry(200),
+          commonMat
+        );
+        this.markerPointer.scale.set(1, 1, 2);
+        // this.markerPointer.rotateX(-Math.PI / 2);
+        // this.markerCone.rotateY(Math.PI / 2);
+        this.markerPointer.name = "markerPointer";
+        this.scene.add(this.markerPointer);
       })
       .catch(error => {
         console.error("车辆载入失败", error);
@@ -133,15 +149,16 @@ export default class CarExternalRenderer {
 
     //点击事件
     this.rayCaster = new THREE.Raycaster();
-    this.view.container.addEventListener("click", event => {
+    this.view.container.addEventListener("mousedown", event => {
       const mouse = new THREE.Vector2();
-      mouse.x = event.clientX / window.innerWidth * 2 - 1;
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
       mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
       this.rayCaster.setFromCamera(mouse, this.camera);
       const intersects: Array<
         THREE.Intersection
       > = this.rayCaster.intersectObjects(this.scene.children, true);
+      console.log(intersects);
       if (intersects.length >= 1) {
         // const clickObject: THREE.Object3D = intersects[0].object;
         this.cameraTracking = !this.cameraTracking;
@@ -159,6 +176,9 @@ export default class CarExternalRenderer {
 
     context.resetWebGLState();
   }
+
+  markerPointerHeight: number = 2300;
+  markerPointerDir: number = 1;
 
   render(context: esri.RenderContext) {
     const camera = context.camera;
@@ -186,7 +206,16 @@ export default class CarExternalRenderer {
       //调整车头方向
       this.car.rotation.y = -angelEst;
 
-      this.markerLine.position.set(renderPos[0], renderPos[1], 3000);
+      this.markerLine.position.set(renderPos[0], renderPos[1], 1200);
+
+      this.markerPointerHeight += this.markerPointerDir;
+      if (this.markerPointerHeight >= 2400) {
+        this.markerPointerDir = -1;
+      }
+      if (this.markerPointerHeight <= 2200) {
+        this.markerPointerDir = 1;
+      }
+      this.markerPointer.position.set(renderPos[0], renderPos[1], this.markerPointerHeight);
 
       //镜头追踪
       if (this.cameraTracking && !this.view.interacting && !this.viewZooming) {
