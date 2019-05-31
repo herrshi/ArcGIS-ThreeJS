@@ -177,7 +177,7 @@ export default class CarExternalRenderer {
       //调整车头方向
       this.car.rotation.y = -angelEst;
 
-      this.markerLine.position.set(renderPos[0], renderPos[1], 500);
+      this.markerLine.position.set(renderPos[0], renderPos[1], 3000);
 
       //追踪
       if (this.cameraTracking && !this.view.interacting) {
