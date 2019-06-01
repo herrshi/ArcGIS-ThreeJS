@@ -12,7 +12,7 @@ module.exports = {
     index: ["./src/css/main.scss", "@dojo/framework/shim/Promise", "./src/index.ts"]
   },
   output: {
-    filename: "[name].[chunkhash].js",
+    filename: "[name].bundle.js",
     publicPath: ""
   },
   optimization: {
@@ -69,13 +69,12 @@ module.exports = {
       title: "ArcGIS Template Application",
       template: "./src/index.html",
       filename: "./index.html",
-      favicon: "./src/assets/favicon.ico",
       chunksSortMode: "none",
       inlineSource: ".(css)$"
     }),
 
     new MiniCssExtractPlugin({
-      filename: "[name].[chunkhash].css",
+      filename: "[name].css",
       chunkFilename: "[id].css"
     })
   ],

@@ -262,7 +262,7 @@ export default class CarExternalRenderer {
 
   loadTrack() {
     return new Promise((resolve, reject) => {
-      fetch("./static/data/10.txt")
+      fetch("./static/data/10-xj.csv")
         .then(response => {
           return response.text();
         })
