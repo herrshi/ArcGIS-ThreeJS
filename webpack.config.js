@@ -13,7 +13,8 @@ module.exports = {
   },
   output: {
     filename: "[name].bundle.js",
-    publicPath: ""
+    path: path.resolve(__dirname,"web-gis"),
+    publicPath: "/web-gis/"
   },
   optimization: {
     minimizer: [
@@ -76,9 +77,19 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: "[name].css",
       chunkFilename: "[id].css"
-    })
+    }),
+
+    new CopyWebpackPlugin([
+      {
+        from: "./static",
+        to: "./static"
+      }
+    ])
   ],
   resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "src/")
+    },
     modules: [
       path.resolve(__dirname, "/src"),
       path.resolve(__dirname, "node_modules/")

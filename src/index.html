@@ -7,15 +7,18 @@
   <title></title>
 </head>
 <body>
-  <noscript>  JavaScript is required in order to use this app </noscript>
-  <div id="app"></div>
+<noscript> JavaScript is required in order to use this app</noscript>
+<div id="mapDiv"></div>
 
-  <script type="text/javascript" src="index.bundle.js"></script>
-  <script>
-    TGISMap.createMap().then(()=>{
+<script type="text/javascript" src="index.bundle.js"></script>
+<script>
+  TGISMap.createMap({
+    configUrl: "http://localhost:8090/ArcGIS-ThreeJS/static/config/config.json",
+    container: "mapDiv"
+  }).then(() => {
 
-    });
-  </script>
+  });
+</script>
 
 </body>
 </html>

@@ -1,6 +1,7 @@
 {
   "loader": {
-    "apiUrl": "http://localhost:8090/arcgis_js_api_4/"
+    "apiUrl": "http://localhost:8090/arcgis_js_api_4/",
+    "appUrl": "http://localhost:8090/web-gis/"
   },
   "map": {
     "basemaps": [
