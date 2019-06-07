@@ -16,7 +16,6 @@
     "preserveConstEnums": true,
     "suppressImplicitAnyIndexErrors": true,
     "strictNullChecks": true,
-
     "outDir": "./dist/",
     "sourceMap": true,
     "noEmitOnError": false,
