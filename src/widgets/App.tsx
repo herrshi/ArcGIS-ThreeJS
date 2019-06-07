@@ -1,19 +1,14 @@
 import esri = __esri;
-import {
-  aliasOf,
-  declared,
-  property,
-  subclass
-} from "esri/core/accessorSupport/decorators";
+import { aliasOf, declared, property, subclass } from "esri/core/accessorSupport/decorators";
 import { tsx } from "esri/widgets/support/widget";
 
 import EsriMap from "esri/Map";
 import SceneView from "esri/views/SceneView";
 import Widget from "esri/widgets/Widget";
 
-import AppViewModel, { AppParams } from "./App/AppViewModel";
+import AppViewModel, { AppParams } from "@/widgets/App/AppViewModel";
 
-import AppConfig from "../AppConfig";
+import AppConfig from "@/AppConfig";
 import TileLayer from "esri/layers/TileLayer";
 
 // import { Header } from "./Header";
@@ -49,52 +44,30 @@ export default class App extends declared(Widget) {
   }
 
   private onAfterCreate(element: HTMLDivElement) {
-    //todo 修改配置文件载入方式
-    AppConfig.getInstance()
-      .getAppConfig()
-      .then(appConfig => {
-        console.log((appConfig as any).map.basemaps[0].url);
-        this.map = new EsriMap({
-          basemap: {
-            baseLayers: [
-              new TileLayer({
-                url: (appConfig as any).map.basemaps[0].url
-              })
-            ]
-          }
-        });
-        this.view = new SceneView({
-          map: this.map,
-          container: element,
-          viewingMode: "local",
-          camera: (appConfig as any).map.options.camera
-          // camera: {
-          //   heading: 0,
-          //   tilt: 70,
-          //   position: {
-          //     latitude: 39.569704,
-          //     longitude: 116.433877,
-          //     z: 13000
-          //   }
-          // }
-        });
-      });
-    // import("./../data/app").then(({ map }) => {
-    //   this.map = map;
-    //   this.view = new SceneView({
-    //     map: this.map,
-    //     container: element,
-    //     viewingMode: "local",
-    //     camera: {
-    //       heading: 0,
-    //       tilt: 70,
-    //       position: {
-    //         latitude: 39.569704,
-    //         longitude: 116.433877,
-    //         z: 13000
-    //       }
-    //     }
-    //   });
-    // });
+    const appConfig = AppConfig.appConfig;
+    this.map = new EsriMap({
+      basemap: {
+        baseLayers: [
+          new TileLayer({
+            url: appConfig.map.basemaps[0].url
+          })
+        ]
+      }
+    });
+    this.view = new SceneView({
+      map: this.map,
+      container: element,
+      viewingMode: "local",
+      camera: appConfig.map.options.camera
+      // camera: {
+      //   heading: 0,
+      //   tilt: 70,
+      //   position: {
+      //     latitude: 39.569704,
+      //     longitude: 116.433877,
+      //     z: 13000
+      //   }
+      // }
+    });
   }
 }

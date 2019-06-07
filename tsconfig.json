@@ -25,7 +25,12 @@
     "types": [
       "arcgis-js-api",
       "moment"
-    ]
+    ],
+    "allowJs": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": [
     "src/**/*"

@@ -2,7 +2,7 @@ import Accessor from "esri/core/Accessor";
 import { whenOnce } from "esri/core/watchUtils";
 import EsriMap from "esri/Map";
 import SceneView from "esri/views/SceneView";
-import CarExternalRenderer from "./CarExternalRenderer";
+import CarExternalRenderer from "@/widgets/app/CarExternalRenderer";
 
 import {
   declared,

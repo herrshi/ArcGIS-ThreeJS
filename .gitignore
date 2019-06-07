@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .idea/
+web-gis/
 
 package-lock.json
 yarn.lock

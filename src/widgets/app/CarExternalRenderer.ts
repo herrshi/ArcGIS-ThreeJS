@@ -3,8 +3,8 @@ import esri = __esri;
 import * as THREE from "three";
 import SceneView from "esri/views/SceneView";
 import SpatialReference from "esri/geometry/SpatialReference";
-import ModelLoader from "../../lib/ModelLoader";
-import CoordTransform from "../../lib/coordtransform";
+import ModelLoader from "@/lib/ModelLoader";
+import CoordTransform from "@/lib/coordtransform";
 
 //轨迹点信息
 interface TrackPointAttr {
@@ -262,6 +262,7 @@ export default class CarExternalRenderer {
 
   loadTrack() {
     return new Promise((resolve, reject) => {
+
       fetch("./static/data/10-xj.csv")
         .then(response => {
           return response.text();
@@ -298,6 +299,9 @@ export default class CarExternalRenderer {
     });
   }
 
+  /**
+   * 计算当前点和下一个点之间的速度
+   * */
   queryCarPosition() {
     let vel: Array<number> = [0, 0];
     const current: TrackPointAttr = this.positionHistory[
@@ -314,6 +318,7 @@ export default class CarExternalRenderer {
         this.currentPointIndex - 1
       ];
       const deltaT: number = current.time - last.time;
+      //计算两个坐标轴上的移动速度
       const vLon: number = (current.pos[0] - last.pos[0]) / deltaT;
       const vLat: number = (current.pos[1] - last.pos[1]) / deltaT;
       vel = [vLon, vLat];
@@ -326,6 +331,7 @@ export default class CarExternalRenderer {
     });
     this.currentPointIndex++;
 
+    //到达目标以后计算下一个位置
     setTimeout(() => {
       this.queryCarPosition();
     }, nextTime * 1000);
@@ -334,6 +340,9 @@ export default class CarExternalRenderer {
   lastPosition: Array<number>;
   lastTime: number;
 
+  /**
+   * 计算车辆实时位置和车头方向
+   * */
   computeCarPosition(): RTPointAttr {
     if (this.estHistory.length >= 2) {
       const now: number = Date.now() / 1000 - this.timeOffset;
