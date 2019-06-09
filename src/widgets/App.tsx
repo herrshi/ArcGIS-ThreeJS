@@ -24,8 +24,6 @@ const CSS = {
 export default class App extends declared(Widget) {
   @property() viewModel = new AppViewModel();
 
-  @aliasOf("viewModel.appName") appName: string;
-
   @aliasOf("viewModel.map") map: EsriMap;
 
   @aliasOf("viewModel.view") view: SceneView;

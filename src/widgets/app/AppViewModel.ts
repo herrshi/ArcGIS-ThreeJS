@@ -13,14 +13,12 @@ import {
 import externalRenderers = require("esri/views/3d/externalRenderers");
 
 export interface AppParams {
-  appName: string;
   map: EsriMap;
   view: SceneView;
 }
 
 @subclass("widgets.App.AppViewModel")
 class AppViewModel extends declared(Accessor) {
-  @property() appName: string;
   @property() map: EsriMap;
   @property() view: SceneView;
 

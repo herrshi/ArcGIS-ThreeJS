@@ -13,7 +13,6 @@ class TGISMap {
     await AppConfig.loadAppConfig(param.configUrl);
     // @ts-ignore
     const app = new App({
-      appName: "三维地图",
       container: document.getElementById(param.container || "app") as HTMLElement
     });
   }
