@@ -5,6 +5,7 @@ import SceneView from "esri/views/SceneView";
 import SpatialReference from "esri/geometry/SpatialReference";
 import ModelLoader from "@/lib/ModelLoader";
 import CoordTransform from "@/lib/coordtransform";
+import AppConfig from "@/AppConfig";
 
 //轨迹点信息
 interface TrackPointAttr {
@@ -59,6 +60,8 @@ export default class CarExternalRenderer {
 
   currentPointIndex: number = 0;
 
+  appConfig: any;
+
   constructor(view: SceneView) {
     this.view = view;
     // if (this.view.environment.lighting) {
@@ -67,6 +70,7 @@ export default class CarExternalRenderer {
   }
 
   setup(context: esri.RenderContext) {
+    this.appConfig = AppConfig.appConfig;
     //WebGLRenderer
     this.renderer = new THREE.WebGLRenderer({
       context: context.gl,
@@ -100,8 +104,9 @@ export default class CarExternalRenderer {
     this.scene.add(this.sun);
 
     //载入车辆模型
+    console.log(this.appConfig.loader.appUrl);
     console.time("车辆载入完成");
-    ModelLoader.loadMTLModel("./static/car/", "car3")
+    ModelLoader.loadMTLModel(`${this.appConfig.loader.appUrl}/static/car/`, "car3")
       .then(car => {
         this.car = car as THREE.Object3D;
         this.car.name = "Car";
@@ -112,10 +117,11 @@ export default class CarExternalRenderer {
         console.timeEnd("车辆载入完成");
 
         //标线
-        const commonMat: THREE.MeshLambertMaterial = new THREE.MeshLambertMaterial({
-          color: 0x2194ce,
-          // wireframe: true
-        });
+        const commonMat: THREE.MeshLambertMaterial = new THREE.MeshLambertMaterial(
+          {
+            color: 0x2194ce
+          }
+        );
         // commonMat.transparent = true;
         commonMat.opacity = 0.5;
 
@@ -215,7 +221,11 @@ export default class CarExternalRenderer {
       if (this.markerPointerHeight <= 2200) {
         this.markerPointerDir = 1;
       }
-      this.markerPointer.position.set(renderPos[0], renderPos[1], this.markerPointerHeight);
+      this.markerPointer.position.set(
+        renderPos[0],
+        renderPos[1],
+        this.markerPointerHeight
+      );
 
       //镜头追踪
       if (this.cameraTracking && !this.view.interacting && !this.viewZooming) {
@@ -262,8 +272,7 @@ export default class CarExternalRenderer {
 
   loadTrack() {
     return new Promise((resolve, reject) => {
-
-      fetch("./static/data/10-xj.csv")
+      fetch(`${this.appConfig.loader.appUrl}/static/data/10-xj.csv`)
         .then(response => {
           return response.text();
         })

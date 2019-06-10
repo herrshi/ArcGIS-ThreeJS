@@ -23,7 +23,7 @@ export default class AppConfig {
   }
 
   private static setEsriConfig() {
-    const DEFAULT_WORKER_URL = (this._appConfig as any).loader.apiUrl;
+    const DEFAULT_WORKER_URL = this._appConfig.loader.apiUrl;
     // const DEFAULT_LOADER_URL = `${DEFAULT_WORKER_URL}dojo/dojo-lite.js`;
 
     (esriConfig.workers as any).loaderUrl = `${DEFAULT_WORKER_URL}dojo/dojo-lite.js`;
