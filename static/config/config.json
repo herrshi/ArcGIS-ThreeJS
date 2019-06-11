@@ -6,6 +6,7 @@
   "map": {
     "basemaps": [
       {
+        "label": "",
         "url": "http://172.30.30.1:6080/arcgis/rest/services/WuLuMuQi/wlmq_base_PurplishBlue_new/MapServer"
       }
     ],

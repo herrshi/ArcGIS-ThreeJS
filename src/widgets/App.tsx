@@ -9,7 +9,7 @@ import Widget from "esri/widgets/Widget";
 import AppViewModel, { AppParams } from "@/widgets/App/AppViewModel";
 
 import AppConfig from "@/AppConfig";
-import TileLayer from "esri/layers/TileLayer";
+// import TileLayer from "esri/layers/TileLayer";
 
 // import { Header } from "./Header";
 
@@ -43,29 +43,48 @@ export default class App extends declared(Widget) {
 
   private onAfterCreate(element: HTMLDivElement) {
     const appConfig = AppConfig.appConfig;
-    this.map = new EsriMap({
-      basemap: {
-        baseLayers: [
-          new TileLayer({
-            url: appConfig.map.basemaps[0].url
-          })
-        ]
-      }
+    import("@/data/app").then(({map}) => {
+      this.map = map;
+      this.view = new SceneView({
+        map: this.map,
+        container: element,
+        viewingMode: "local",
+        camera: appConfig.map.options.camera
+        // camera: {
+        //   heading: 0,
+        //   tilt: 70,
+        //   position: {
+        //     latitude: 39.569704,
+        //     longitude: 116.433877,
+        //     z: 13000
+        //   }
+        // }
+      });
+
     });
-    this.view = new SceneView({
-      map: this.map,
-      container: element,
-      viewingMode: "local",
-      camera: appConfig.map.options.camera
-      // camera: {
-      //   heading: 0,
-      //   tilt: 70,
-      //   position: {
-      //     latitude: 39.569704,
-      //     longitude: 116.433877,
-      //     z: 13000
-      //   }
-      // }
-    });
+    // this.map = new EsriMap({
+    //   basemap: {
+    //     baseLayers: [
+    //       new TileLayer({
+    //         url: appConfig.map.basemaps[0].url
+    //       })
+    //     ]
+    //   }
+    // });
+    // this.view = new SceneView({
+    //   map: this.map,
+    //   container: element,
+    //   viewingMode: "local",
+    //   camera: appConfig.map.options.camera
+    //   // camera: {
+    //   //   heading: 0,
+    //   //   tilt: 70,
+    //   //   position: {
+    //   //     latitude: 39.569704,
+    //   //     longitude: 116.433877,
+    //   //     z: 13000
+    //   //   }
+    //   // }
+    // });
   }
 }
