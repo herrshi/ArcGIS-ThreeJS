@@ -5,22 +5,6 @@ import AppConfig from "@/AppConfig";
 const appConfig = AppConfig.appConfig;
 export const map = new EsriMap({
   basemap: {
-    baseLayers: [
-      new TileLayer({
-        url: appConfig.map.basemaps[0].url
-      })
-    ]
+    baseLayers: [new TileLayer(appConfig.map.basemaps[0])]
   }
 });
-
-//todo 使用配置文件中的地址
-// export const map = new EsriMap({
-//   basemap: {
-//     baseLayers: [
-//       new TileLayer({
-//         url:
-//           "https://map.geoq.cn/arcgis/rest/services/ChinaOnlineStreetPurplishBlue/MapServer"
-//       })
-//     ]
-//   }
-// });

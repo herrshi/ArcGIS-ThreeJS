@@ -104,7 +104,6 @@ export default class CarExternalRenderer {
     this.scene.add(this.sun);
 
     //载入车辆模型
-    console.log(this.appConfig.loader.appUrl);
     console.time("车辆载入完成");
     ModelLoader.loadMTLModel(`${this.appConfig.loader.appUrl}/static/car/`, "car3")
       .then(car => {
@@ -234,6 +233,7 @@ export default class CarExternalRenderer {
             target: [posEst[0], posEst[1]]
           });
         } else {
+          //第一次进入时调整缩放等级
           this.view
             .goTo({
               target: [posEst[0], posEst[1]],
