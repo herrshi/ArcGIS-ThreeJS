@@ -2,7 +2,7 @@ import esri = __esri;
 import { aliasOf, declared, property, subclass } from "esri/core/accessorSupport/decorators";
 import { tsx } from "esri/widgets/support/widget";
 
-import EsriMap from "esri/Map";
+// import EsriMap from "esri/Map";
 import SceneView from "esri/views/SceneView";
 import Widget from "esri/widgets/Widget";
 
@@ -24,7 +24,7 @@ const CSS = {
 export default class App extends declared(Widget) {
   @property() viewModel = new AppViewModel();
 
-  @aliasOf("viewModel.map") map: EsriMap;
+  // @aliasOf("viewModel.map") map: EsriMap;
 
   @aliasOf("viewModel.view") view: SceneView;
 
@@ -44,9 +44,9 @@ export default class App extends declared(Widget) {
   private onAfterCreate(element: HTMLDivElement) {
     const appConfig = AppConfig.appConfig;
     import("@/data/app").then(({map}) => {
-      this.map = map;
+      // this.map = map;
       this.view = new SceneView({
-        map: this.map,
+        map: map,
         container: element,
         viewingMode: "local",
         camera: appConfig.map.options.camera

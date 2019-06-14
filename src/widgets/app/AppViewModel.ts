@@ -1,6 +1,6 @@
 import Accessor from "esri/core/Accessor";
 import { whenOnce } from "esri/core/watchUtils";
-import EsriMap from "esri/Map";
+// import EsriMap from "esri/Map";
 import SceneView from "esri/views/SceneView";
 import CarExternalRenderer from "@/widgets/app/CarExternalRenderer";
 
@@ -13,13 +13,13 @@ import {
 import externalRenderers = require("esri/views/3d/externalRenderers");
 
 export interface AppParams {
-  map: EsriMap;
+  // map: EsriMap;
   view: SceneView;
 }
 
 @subclass("widgets.App.AppViewModel")
 class AppViewModel extends declared(Accessor) {
-  @property() map: EsriMap;
+  // @property() map: EsriMap;
   @property() view: SceneView;
 
   constructor(params?: Partial<AppParams>) {
