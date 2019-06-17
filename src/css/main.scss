@@ -30,5 +30,7 @@ $include_Tags: false !default;
 $include_TimePicker: false !default;
 $include_Zoom: true !default;
 
+
 @import "~arcgis-js-api/themes/light/main.scss";
 @import "index";
+@import "Bookmarks";
