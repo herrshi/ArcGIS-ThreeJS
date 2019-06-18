@@ -6,8 +6,8 @@ import {
 import Accessor from "esri/core/Accessor";
 import Extent from "esri/geometry/Extent";
 
-@subclass("TGIS.BookmarkItem")
-export default class BookmarkItem extends declared(Accessor) {
+@subclass("TGIS.Widgets.Bookmarks.BookmarkItem")
+class BookmarkItem extends declared(Accessor) {
   @property() active = false;
 
   @property({
@@ -17,3 +17,5 @@ export default class BookmarkItem extends declared(Accessor) {
 
   @property() name: string;
 }
+
+export default BookmarkItem;

@@ -11,7 +11,7 @@ module.exports = {
   entry: {
     index: [
       "./src/css/main.scss",
-      "@dojo/framework/shim/Promise",
+      // "@dojo/framework/shim/Promise",
       "./src/index.ts"
     ]
   },

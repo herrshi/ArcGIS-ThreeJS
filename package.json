@@ -4,7 +4,7 @@
   "scripts": {
     "start": "webpack-dev-server --mode development --open",
     "build": "webpack --mode production",
-    "serve": "webpack-dev-server --mode production --open --https --compress",
+    "serve": "webpack-dev-server --mode production --open --http --compress",
     "prettier": "prettier --write \"src/**/*.ts?(x)\"",
     "lint": "tslint --fix \"src/**/*.ts?(x)\""
   },

@@ -1,17 +1,18 @@
 import esri = __esri;
-import { aliasOf, declared, property, subclass } from "esri/core/accessorSupport/decorators";
+import {
+  aliasOf,
+  declared,
+  property,
+  subclass
+} from "esri/core/accessorSupport/decorators";
 import { tsx } from "esri/widgets/support/widget";
 
-// import EsriMap from "esri/Map";
 import SceneView from "esri/views/SceneView";
 import Widget from "esri/widgets/Widget";
 
 import AppViewModel, { AppParams } from "@/widgets/App/AppViewModel";
 
 import AppConfig from "@/AppConfig";
-// import TileLayer from "esri/layers/TileLayer";
-
-// import { Header } from "./Header";
 
 interface AppViewParams extends AppParams, esri.WidgetProperties {}
 
@@ -20,11 +21,9 @@ const CSS = {
   webmap: "webmap"
 };
 
-@subclass("app.widgets.webmapview")
-export default class App extends declared(Widget) {
+@subclass("TGIS.Widgets.App")
+class App extends declared(Widget) {
   @property() viewModel = new AppViewModel();
-
-  // @aliasOf("viewModel.map") map: EsriMap;
 
   @aliasOf("viewModel.view") view: SceneView;
 
@@ -35,7 +34,6 @@ export default class App extends declared(Widget) {
   render() {
     return (
       <div class={CSS.base}>
-        {/*{Header({ appName: this.appName })}*/}
         <div class={CSS.webmap} bind={this} afterCreate={this.onAfterCreate} />
       </div>
     );
@@ -43,8 +41,7 @@ export default class App extends declared(Widget) {
 
   private onAfterCreate(element: HTMLDivElement) {
     const appConfig = AppConfig.appConfig;
-    import("@/data/app").then(({map}) => {
-      // this.map = map;
+    import("@/data/app").then(({ map }) => {
       this.view = new SceneView({
         map: map,
         container: element,
@@ -60,7 +57,8 @@ export default class App extends declared(Widget) {
         //   }
         // }
       });
-
     });
   }
 }
+
+export default App;

@@ -1,7 +1,6 @@
 import esriConfig from "esri/config";
 
 export default class AppConfig {
-
   private static _appConfig: any;
 
   static async loadAppConfig(configUrl: string) {
@@ -14,7 +13,7 @@ export default class AppConfig {
         console.error("配置文件解析错误.", error);
       }
     } catch (error) {
-      console.error("配置文件读取错误.", error)
+      console.error("配置文件读取错误.", error);
     }
   }
 

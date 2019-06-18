@@ -18,8 +18,8 @@ const BookmarkItemCollection = Collection.ofType<BookmarkItem>(BookmarkItem);
 
 type State = "ready" | "loading" | "disabled";
 
-@subclass("TGIS.BookmarksViewModel")
-export default class BookmarksViewModel extends declared(Accessor) {
+@subclass("TGIS.Widgets.Bookmarks.BookmarksViewModel")
+class BookmarksViewModel extends declared(Accessor) {
   //--------------------------------------------------------------------------
   //
   //  Lifecycle
@@ -143,3 +143,5 @@ export default class BookmarksViewModel extends declared(Accessor) {
     bookmarkItems.addMany(bookmarks);
   }
 }
+
+export default BookmarksViewModel;

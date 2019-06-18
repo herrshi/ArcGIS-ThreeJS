@@ -4,8 +4,8 @@ import AppConfig from "@/AppConfig";
 import App from "@/widgets/App";
 
 interface AppParam {
-  configUrl: string,
-  container?: string
+  configUrl: string;
+  container?: string;
 }
 
 class TGISMap {
@@ -13,10 +13,11 @@ class TGISMap {
     await AppConfig.loadAppConfig(param.configUrl);
     // @ts-ignore
     const app = new App({
-      container: document.getElementById(param.container || "app") as HTMLElement
+      container: document.getElementById(
+        param.container || "app"
+      ) as HTMLElement
     });
   }
 }
 
 (window as any).TGISMap = TGISMap;
-

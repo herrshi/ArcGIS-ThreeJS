@@ -31,8 +31,8 @@ const CSS = {
   bookmarkItemActive: "TGIS-bookmarks__item--active"
 };
 
-@subclass("TGIS.Bookmarks")
-export default class Bookmarks extends declared(Widget) {
+@subclass("TGIS.Widgets.Bookmarks")
+class Bookmarks extends declared(Widget) {
   //--------------------------------------------------------------------------
   //
   //  Lifecycle
@@ -40,7 +40,7 @@ export default class Bookmarks extends declared(Widget) {
   //--------------------------------------------------------------------------
   constructor(params?: any) {
     super();
-    console.log(params);
+    console.log("app create");
   }
 
   postInitialize(): void {
@@ -115,8 +115,8 @@ export default class Bookmarks extends declared(Widget) {
             </ul>
           ]
         : state === "loading"
-          ? loadingNode
-          : null;
+        ? loadingNode
+        : null;
 
     return <div class={CSS.base}>{bookmarkListNode}</div>;
   }
@@ -179,3 +179,5 @@ export default class Bookmarks extends declared(Widget) {
     this.viewModel.goTo(bookmarkItem);
   }
 }
+
+export default Bookmarks;
