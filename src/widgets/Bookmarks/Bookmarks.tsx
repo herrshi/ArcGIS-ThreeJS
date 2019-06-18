@@ -1,6 +1,6 @@
-import watchUtils = require("esri/core/watchUtils");
+import watchUtils from "esri/core/watchUtils";
 
-import Widget = require("esri/widgets/Widget");
+import Widget from "esri/widgets/Widget";
 import {
   aliasOf,
   declared,
@@ -11,11 +11,10 @@ import Handles from "esri/core/Handles";
 import SceneView from "esri/views/SceneView";
 import {
   accessibleHandler,
-  renderable,
   cssTransition,
+  renderable,
   tsx
 } from "esri/widgets/support/widget";
-
 import BookmarksViewModel from "@/widgets/Bookmarks/BookmarksViewModel";
 import BookmarkItem from "@/widgets/Bookmarks/BookmarkItem";
 
@@ -33,7 +32,7 @@ const CSS = {
 };
 
 @subclass("TGIS.Bookmarks")
-class Bookmarks extends declared(Widget) {
+export default class Bookmarks extends declared(Widget) {
   //--------------------------------------------------------------------------
   //
   //  Lifecycle
@@ -41,6 +40,7 @@ class Bookmarks extends declared(Widget) {
   //--------------------------------------------------------------------------
   constructor(params?: any) {
     super();
+    console.log(params);
   }
 
   postInitialize(): void {
@@ -70,6 +70,11 @@ class Bookmarks extends declared(Widget) {
   //  iconClass
   //----------------------------------
   @property() iconClass = CSS.iconClass;
+
+  //----------------------------------
+  //  label
+  //----------------------------------
+  @property() label: string = "书签";
 
   //----------------------------------
   //  view
@@ -174,5 +179,3 @@ class Bookmarks extends declared(Widget) {
     this.viewModel.goTo(bookmarkItem);
   }
 }
-
-export = Bookmarks;
