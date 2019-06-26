@@ -3,7 +3,7 @@ import { whenOnce } from "esri/core/watchUtils";
 import SceneView from "esri/views/SceneView";
 // import CarExternalRenderer from "@/widgets/app/CarExternalRenderer";
 import Bookmarks from "@/widgets/Bookmarks";
-import Expand from "esri/widgets/Expand";
+import DemoWidget from "@/widgets/DemoWidget";
 
 import {
   declared,
@@ -33,17 +33,17 @@ class AppViewModel extends declared(Accessor) {
     // const carRenderer: CarExternalRenderer = new CarExternalRenderer(this.view);
     // externalRenderers.add(this.view, carRenderer);
 
+
+    const demo = new DemoWidget({
+      view: this.view
+    });
+    console.log(Bookmarks);
     const bookmarks = new Bookmarks({
       view: this.view
     });
-    console.log(bookmarks);
+    console.log(DemoWidget);
 
-    const expand = new Expand({
-      view: this.view
-      // content: bookmarks
-    });
-
-    this.view.ui.add(expand, "top-right");
+    this.view.ui.add(bookmarks, "top-right");
     console.log(this.view.ui);
   }
 }

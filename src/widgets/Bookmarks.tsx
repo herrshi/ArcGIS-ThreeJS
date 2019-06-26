@@ -1,3 +1,6 @@
+/// <amd-dependency path="esri/core/tsSupport/declareExtendsHelper" name="__extends" />
+/// <amd-dependency path="esri/core/tsSupport/decorateHelper" name="__decorate" />
+
 import watchUtils from "esri/core/watchUtils";
 
 import Widget from "esri/widgets/Widget";
@@ -39,8 +42,8 @@ class Bookmarks extends declared(Widget) {
   //
   //--------------------------------------------------------------------------
   constructor(params?: any) {
-    super();
-    console.log("app create");
+    super(params);
+    console.log("widget create");
   }
 
   postInitialize(): void {
