@@ -26,7 +26,7 @@ class BookmarksViewModel extends declared(Accessor) {
   //
   //--------------------------------------------------------------------------
 
-  initialize(): void {
+  postInitialize(): void {
     this._handles.add(
       watchUtils.init(this, "view", view => this._viewUpdated(view))
     );

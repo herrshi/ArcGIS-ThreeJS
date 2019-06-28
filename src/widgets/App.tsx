@@ -47,15 +47,6 @@ class App extends declared(Widget) {
         container: element,
         viewingMode: "local",
         camera: appConfig.map.options.camera
-        // camera: {
-        //   heading: 0,
-        //   tilt: 70,
-        //   position: {
-        //     latitude: 39.569704,
-        //     longitude: 116.433877,
-        //     z: 13000
-        //   }
-        // }
       });
     });
   }

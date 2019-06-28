@@ -7,12 +7,12 @@
     "basemaps": [
       {
         "label": "",
-        "url": "https://map.geoq.cn/arcgis/rest/services/ChinaOnlineCommunity/MapServer"
+        "url": "http://172.30.30.1:6080/arcgis/rest/services/WuLuMuQi/wlmq_base_PurplishBlue_new/MapServer"
       }
     ],
     "options": {
       "camera": {
-        "position": { "x": 116.433877, "y": 39.569704, "z": 13000 },
+        "position": { "x": 87.616273, "y": 43.490102, "z": 25173.313563 },
         "tilt": 45,
         "heading": 0
       }
